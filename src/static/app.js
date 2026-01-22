@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
   const schoolName = "Mergington High School";
+  const shareTextTemplate =
+    "Check out {activity} at {school}. {schedule}. {description}";
 
   // State for activities and filters
   let allActivities = {};
@@ -313,7 +315,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function sanitizeShareText(text) {
-    return text.replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+    return text
+      .replace(/[\u0000-\u001F\u007F]/g, " ")
+      .replace(/[<>]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function formatShareText(activityName, schedule, description) {
+    return shareTextTemplate
+      .replace("{activity}", activityName)
+      .replace("{school}", schoolName)
+      .replace("{schedule}", schedule)
+      .replace("{description}", description);
   }
 
   function buildShareLinks(activityName, details, formattedSchedule) {
@@ -322,7 +336,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const safeActivityName = sanitizeShareText(activityName);
     const safeSchedule = sanitizeShareText(formattedSchedule);
     const safeDescription = sanitizeShareText(details.description);
-    const shareText = `Check out ${safeActivityName} at ${schoolName}. ${safeSchedule}. ${safeDescription}`;
+    const shareText = formatShareText(
+      safeActivityName,
+      safeSchedule,
+      safeDescription
+    );
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedBody = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
     const encodedSubject = encodeURIComponent(`Join me at ${safeActivityName}`);
