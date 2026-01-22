@@ -312,18 +312,26 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/(^-|-$)/g, "");
   }
 
+  function sanitizeShareText(text) {
+    return text.replace(/[<>]/g, "").replace(/\s+/g, " ").trim();
+  }
+
   function buildShareLinks(activityName, details, formattedSchedule) {
     const activityId = createActivityId(activityName);
     const shareUrl = `${window.location.origin}${window.location.pathname}#${activityId}`;
-    const shareText = `Check out ${activityName} at ${schoolName}. ${formattedSchedule}. ${details.description}`;
+    const safeActivityName = sanitizeShareText(activityName);
+    const safeSchedule = sanitizeShareText(formattedSchedule);
+    const safeDescription = sanitizeShareText(details.description);
+    const shareText = `Check out ${safeActivityName} at ${schoolName}. ${safeSchedule}. ${safeDescription}`;
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedBody = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
-    const encodedSubject = encodeURIComponent(`Join me at ${activityName}`);
+    const encodedSubject = encodeURIComponent(`Join me at ${safeActivityName}`);
+    const encodedTweet = encodeURIComponent(`${shareText} ${shareUrl}`);
 
     return {
       email: `mailto:?subject=${encodedSubject}&body=${encodedBody}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      x: `https://x.com/intent/tweet?text=${encodedBody}`,
+      x: `https://x.com/intent/tweet?text=${encodedTweet}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     };
   }
