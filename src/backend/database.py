@@ -166,13 +166,13 @@ initial_activities = {
     },
     "Manga Maniacs": {
         "description": "Dive into epic adventures, legendary battles, and heartwarming friendships! Discover unforgettable heroes, mysterious villains, and stories that will keep you on the edge of your seat. From shonen action to slice-of-life tales, explore the incredible world of Japanese manga!",
-        "schedule": "Tuesdays, 7:00 PM - 9:00 PM",
+        "schedule": "Tuesdays, 5:00 PM - 7:00 PM",
         "schedule_details": {
             "days": ["Tuesday"],
-            "start_time": "19:00",
-            "end_time": "21:00"
+            "start_time": "17:00",
+            "end_time": "19:00"
         },
-        "max_participants": 15,
+        "max_participants": 25,
         "participants": []
     }
 }
