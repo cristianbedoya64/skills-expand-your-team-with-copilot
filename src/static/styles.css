@@ -187,7 +187,8 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Activity Tag */
@@ -285,6 +286,79 @@ section h3 {
   letter-spacing: 0.3px;
   text-transform: uppercase;
   border: none;
+}
+
+.auth-notice {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background-color: var(--info-light);
+  color: var(--info);
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.share-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.share-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-button {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: var(--primary-text);
+  background-color: var(--primary);
+  transition: background-color 0.2s;
+}
+
+.share-button:hover {
+  background-color: var(--primary-light);
+}
+
+.share-email {
+  background-color: var(--primary-dark);
+}
+
+.share-email:hover {
+  background-color: var(--primary);
+}
+
+.share-facebook {
+  background-color: #1877f2;
+}
+
+.share-facebook:hover {
+  background-color: #1154b3;
+}
+
+.share-x {
+  background-color: #111111;
+}
+
+.share-x:hover {
+  background-color: #000000;
+}
+
+.share-linkedin {
+  background-color: #0a66c2;
+}
+
+.share-linkedin:hover {
+  background-color: #004182;
 }
 
 button {
