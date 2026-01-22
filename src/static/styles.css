@@ -163,6 +163,11 @@ section h3 {
   font-size: 0.85rem;
 }
 
+.shared-activity {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 2px rgba(255, 111, 0, 0.2);
+}
+
 .activity-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);

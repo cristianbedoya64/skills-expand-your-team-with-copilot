@@ -350,6 +350,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function buildShareLinks(activityName, details, formattedSchedule) {
     const activityId = createActivityId(activityName);
     const shareUrl = `${window.location.origin}${window.location.pathname}#${activityId}`;
+    if (!shareUrl.startsWith(window.location.origin)) {
+      throw new Error("Invalid share URL generated");
+    }
     const safeActivityName = sanitizeShareText(activityName);
     const safeSchedule = sanitizeShareText(formattedSchedule);
     const safeDescription = sanitizeShareText(details.description);
@@ -537,6 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+    highlightSharedActivity();
   }
 
   // Function to render a single activity card
@@ -671,6 +675,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     activitiesList.appendChild(activityCard);
+  }
+
+  function highlightSharedActivity() {
+    const hashId = window.location.hash.slice(1);
+    if (!hashId) {
+      return;
+    }
+
+    const sharedCard = document.getElementById(hashId);
+    if (!sharedCard) {
+      return;
+    }
+
+    sharedCard.classList.add("shared-activity");
+    sharedCard.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   // Event listeners for search and filter
