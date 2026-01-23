@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
     community: { label: "Community", color: "#fff3e0", textColor: "#e65100" },
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
+  const schoolName = "Mergington High School";
+  const shareTextTemplate =
+    "Check out {activity} at {school}. {schedule}. {description}";
+  const shareUrlTemplates = {
+    email: (subject, body) => `mailto:?subject=${subject}&body=${body}`,
+    facebook: (url) => `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    x: (text) => `https://x.com/intent/tweet?text=${text}`,
+    linkedin: (url) =>
+      `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+  };
 
   // State for activities and filters
   let allActivities = {};
@@ -304,6 +314,66 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function createActivityId(activityName) {
+    return activityName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+
+  function sanitizeShareText(text) {
+    return text
+      .replace(/[\u0000-\u001F\u007F]/g, " ")
+      .replace(/[<>]/g, "")
+      .replace(/["'`]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function escapeAttribute(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatShareText(activityName, schedule, description) {
+    return shareTextTemplate
+      .replace("{activity}", activityName)
+      .replace("{school}", schoolName)
+      .replace("{schedule}", schedule)
+      .replace("{description}", description);
+  }
+
+  function buildShareLinks(activityName, details, formattedSchedule) {
+    const activityId = createActivityId(activityName);
+    const shareUrl = `${window.location.origin}${window.location.pathname}#${activityId}`;
+    if (!shareUrl.startsWith(window.location.origin)) {
+      throw new Error("Invalid share URL generated");
+    }
+    const safeActivityName = sanitizeShareText(activityName);
+    const safeSchedule = sanitizeShareText(formattedSchedule);
+    const safeDescription = sanitizeShareText(details.description);
+    const shareText = formatShareText(
+      safeActivityName,
+      safeSchedule,
+      safeDescription
+    );
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedBody = encodeURIComponent(`${shareText}\n\n${shareUrl}`);
+    const encodedSubject = encodeURIComponent(`Join me at ${safeActivityName}`);
+    const encodedTweet = encodeURIComponent(`${shareText} ${shareUrl}`);
+
+    return {
+      email: shareUrlTemplates.email(encodedSubject, encodedBody),
+      facebook: shareUrlTemplates.facebook(encodedUrl),
+      x: shareUrlTemplates.x(encodedTweet),
+      linkedin: shareUrlTemplates.linkedin(encodedUrl),
+    };
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -470,12 +540,14 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+    highlightSharedActivity();
   }
 
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
+    activityCard.id = createActivityId(name);
 
     // Calculate spots and capacity
     const totalSpots = details.max_participants;
@@ -498,6 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const shareLinks = buildShareLinks(name, details, formattedSchedule);
+    const activityNameLabel = escapeAttribute(name);
 
     // Create activity tag
     const tagHtml = `
@@ -515,6 +589,18 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="capacity-text">
           <span>${takenSpots} enrolled</span>
           <span>${spotsLeft} spots left</span>
+        </div>
+      </div>
+    `;
+
+    const shareButtons = `
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <a class="share-button share-email" href="${shareLinks.email}" aria-label="Share ${activityNameLabel} by email">Email</a>
+          <a class="share-button share-facebook" href="${shareLinks.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Share ${activityNameLabel} on Facebook">Facebook</a>
+          <a class="share-button share-x" href="${shareLinks.x}" target="_blank" rel="noopener noreferrer" aria-label="Share ${activityNameLabel} on X">X</a>
+          <a class="share-button share-linkedin" href="${shareLinks.linkedin}" target="_blank" rel="noopener noreferrer" aria-label="Share ${activityNameLabel} on LinkedIn">LinkedIn</a>
         </div>
       </div>
     `;
@@ -568,6 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        ${shareButtons}
       </div>
     `;
 
@@ -588,6 +675,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     activitiesList.appendChild(activityCard);
+  }
+
+  function highlightSharedActivity() {
+    const hashId = window.location.hash.slice(1);
+    if (!hashId) {
+      return;
+    }
+
+    const sharedCard = document.getElementById(hashId);
+    if (!sharedCard) {
+      return;
+    }
+
+    sharedCard.classList.add("shared-activity");
+    sharedCard.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   // Event listeners for search and filter
